@@ -1,6 +1,5 @@
 #ifndef _BIT_PRINT_
 #define _BIT_PRINT_
-#include <stdio.h>
 
 static void bitprint(char *p_dst, unsigned char byte) {
     int i;
