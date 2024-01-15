@@ -17,7 +17,7 @@ const char *va(const char *p_format, ...)
 bool open_gpio_pins(int *p_fds, int count)
 {
  for(int i = 0; i < count; i++) {
-  p_fds[i] = open(va("/home/catalyst/gpio/gpio%d", i), O_RDONLY);
+  p_fds[i] = open(va("/home/nechaev/gpio/gpio%d", i), O_RDONLY);
   if(p_fds[i] == -1) {
    perror(va("failed to open %d gpio pin", i));
    return false;
