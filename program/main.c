@@ -52,6 +52,8 @@ int main()
  unsigned char value;
  int           fds[8];
  char          bits[10];
+ int           num_records = 0;
+ const int     max_records = 100;
  const char   *p_format_spec[] = { "%d", ",%d" };
  const char   *p_cur_format_spec = p_format_spec[0];
 
@@ -69,11 +71,25 @@ int main()
  while(1) {
   if(read_gpio_pins(&value, fds)) {
    bitprint(bits, value);
-   printf("read from gpio pins: %s\n", bits); 
-   fprintf(fp, p_cur_format_spec, value);
-   fflush(fp);
-   if(p_cur_format_spec == p_format_spec[0])
-    p_cur_format_spec = p_format_spec[1]; //switch to next format specifier   
+   printf("read from gpio pins: %s\n", bits);
+   
+   if(num_records < max_records) {
+    num_records++;
+    fprintf(fp, p_cur_format_spec, value);
+    fflush(fp);
+    if(p_cur_format_spec == p_format_spec[0])
+     p_cur_format_spec = p_format_spec[1]; //switch to next format specifier   
+   }
+   else {
+    num_records = 0;   
+    int fd = fileno(fp);
+    if(ftruncate(fd, 0) == -1) {
+     perror("truncate failed");
+    }
+    rewind(fp);
+    p_cur_format_spec = p_format_spec[0];
+    printf("clear file records\n");
+   }
   }
   usleep(500000); //0.5 sec
  }
