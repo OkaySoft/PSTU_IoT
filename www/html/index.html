@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Температура</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+    <canvas id="temperatureChart"></canvas>
+  </div>
+  <label for="unitCheckbox">Градусы Цельсии</label>
+  <input type="checkbox" id="unitCheckbox" checked>
+
+  <script>
+    let isCelsius = true;
+
+    function loadTemperatureData() {
+      fetch('./temperature.txt')
+        .then(response => response.text())
+        .then(data => {
+          const temperatures = data.split(',').map(Number);
+          const convertedTemperatures = isCelsius ? temperatures : temperatures.map(convertToFahrenheit);
+          updateChart(convertedTemperatures);
+        })
+        .catch(error => console.error('Ошибка получения Ттемпературы:', error));
+    }
+
+    function updateChart(data) {
+      const ctx = document.getElementById('temperatureChart').getContext('2d');
+      
+      if (window.myChart) {
+        window.myChart.destroy();
+      }
+
+      window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({ length: data.length }, (_, i) => i + 1),
+          datasets: [{
+            label: `Температура (${isCelsius ? '°C' : '°F'})`,
+            data: data,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            fill: false,
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    document.getElementById('unitCheckbox').addEventListener('change', function() {
+      isCelsius = this.checked;
+      loadTemperatureData();
+    });
+
+    loadTemperatureData();
+
+    setInterval(loadTemperatureData, 5000);
+
+    function convertToFahrenheit(celsius) {
+      return (celsius * 9/5) + 32;
+    }
+  </script>
+</body>
+</html>
