@@ -17,6 +17,10 @@
     <button type="button" class="btn btn-primary mb-3" onclick="method = 'topMinute'">Топ 10, минута</button>
     <button type="button" class="btn btn-primary mb-3" onclick="method = 'last'">Последние 30</button>
     <br>
+    <button type="button" class="btn btn-danger mb-3" onclick="apiRequest('stop')">Остановить</button>
+    <button type="button" class="btn btn-success mb-3" onclick="apiRequest('start')">Запустить</button>
+    <button type="button" class="btn btn-warning mb-3" onclick="apiRequest('clear')">Очистить всю историю</button>
+
     <?php $status = file_get_contents('status.conf') === 'on'; ?>
     <div class="alert alert-<?php echo($status ? 'success' : 'danger'); ?>" id="tempStatus" role="alert">
       Датчик температуры <?php echo($status ? 'включен' : 'выключен'); ?>
@@ -101,6 +105,20 @@
 
     function convertToFahrenheit(celsius) {
       return (celsius * 9/5) + 32;
+    }
+
+    function apiRequest(method){
+      fetch('/api.php?'+method+'=1');
+      if (method == 'start'){
+        document.getElementById('tempStatus').classList.remove('alert-danger');
+        document.getElementById('tempStatus').classList.add('alert-success');
+        document.getElementById('tempStatus').innerText = 'Датчик температуры включен';
+      }
+      else if (method == 'stop'){
+        document.getElementById('tempStatus').classList.remove('alert-success');
+        document.getElementById('tempStatus').classList.add('alert-danger');
+        document.getElementById('tempStatus').innerText = 'Датчик температуры выключен';
+      }
     }
   </script>
 </body>
