@@ -33,4 +33,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GreetingView() {
+    AndroidView(
+        factory = { context ->
+            WebView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                loadUrl("https://webview.celiac.ru")
+            }
+        },
+    )
 }
