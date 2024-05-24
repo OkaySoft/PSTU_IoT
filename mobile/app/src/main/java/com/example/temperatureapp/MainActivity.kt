@@ -40,6 +40,14 @@ fun GreetingView() {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.loadWithOverviewMode = true
+                settings.useWideViewPort = true
+                settings.defaultTextEncodingName = "utf-8"
+                settings.setSupportZoom(true)
+                settings.displayZoomControls = false
+                settings.builtInZoomControls = true
                 loadUrl("https://webview.celiac.ru")
             }
         },
