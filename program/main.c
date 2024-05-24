@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <time.h>
 #include "../bitprint.h"
 
 const char *va(const char *p_format, ...)
@@ -17,7 +20,7 @@ const char *va(const char *p_format, ...)
 bool open_gpio_pins(int *p_fds, int count)
 {
  for(int i = 0; i < count; i++) {
-  p_fds[i] = open(va("/home/nechaev/gpio/gpio%d", i), O_RDONLY);
+  p_fds[i] = open(va("/var/www/webview/system/gpio%d", i), O_RDONLY);
   if(p_fds[i] == -1) {
    perror(va("failed to open %d gpio pin", i));
    return false;
@@ -52,15 +55,11 @@ int main()
  unsigned char value;
  int           fds[8];
  char          bits[10];
- int           num_records = 0;
- const int     max_records = 100;
- const char   *p_format_spec[] = { "%d", ",%d" };
- const char   *p_cur_format_spec = p_format_spec[0];
 
  if(!open_gpio_pins(fds, 8))
   return 1;
 
- const char *p_file_path = "/var/www/html/temperature.txt";
+ const char *p_file_path = "/var/www/webview/temperature.txt";
  fp = fopen(p_file_path, "wt");
  if(!fp) {
   perror("failed to open shared text file");
@@ -71,25 +70,10 @@ int main()
  while(1) {
   if(read_gpio_pins(&value, fds)) {
    bitprint(bits, value);
+   rewind(fp);
    printf("read from gpio pins: %s\n", bits);
-   
-   if(num_records < max_records) {
-    num_records++;
-    fprintf(fp, p_cur_format_spec, value);
-    fflush(fp);
-    if(p_cur_format_spec == p_format_spec[0])
-     p_cur_format_spec = p_format_spec[1]; //switch to next format specifier   
-   }
-   else {
-    num_records = 0;   
-    int fd = fileno(fp);
-    if(ftruncate(fd, 0) == -1) {
-     perror("truncate failed");
-    }
-    rewind(fp);
-    p_cur_format_spec = p_format_spec[0];
-    printf("clear file records\n");
-   }
+   fprintf(fp, "%d", value);
+   fflush(fp);
   }
   usleep(500000); //0.5 sec
  }
@@ -97,5 +81,3 @@ int main()
  fclose(fp);
  return 0;
 }
-
-
